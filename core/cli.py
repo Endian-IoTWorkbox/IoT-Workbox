@@ -94,6 +94,7 @@ class Cli(object):
         table = [["?", "Display this menu"], ["help", "Display this menu"],
                  ["exit", "exit from the program"], ["options", "Print module's options"],
                  ["list", "list all modules"], ["info", "Print module's info"]]
+        
         print(tabulate(table, headers=["Command", "Description"], tablefmt="grid"))
 
     def main_help(self):
