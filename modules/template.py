@@ -6,7 +6,7 @@ from tabulate import tabulate
 # To print information use either plus, minus, warning or info accordingly
 # To test the module this should be added into the file in /core/cli.py
 # Instruction to do that will be inside that file
-# To run the program you need to run the file iot.py
+# To run the program you need to run the file workbox.py
 
 class ModuleName(object):
 
