@@ -15,11 +15,9 @@ class Cli(object):
     def __init__(self, context):
         self.prompt = "\n\033[95miotworkbox#>\033[0m "
         self.context = context
-        self.modules_path = os.path.dirname(os.path.realpath(__file__))
-        # Add your module name in here
-        self.available_modules = ["portscanner", "sshbruteforce", "ftpbruteforce"]
+        
         # Add your module name and main class in this dictionary i.e "sqlinjection": SQLInjection()
-        self.modules = {"portscanner": PortScan(), "sshbruteforce": SSHBruteforce(), "ftpbruteforce": FTPBruteforce()}
+        self.modules = {"portscan": PortScan(), "sshbruteforce": SSHBruteforce(), "ftpbruteforce": FTPBruteforce()}
 
     def run(self):
         while True:
@@ -28,7 +26,7 @@ class Cli(object):
 
             if self.context == "main":
                 if command_list[0] == "use":
-                    if command_list[1] in self.available_modules:
+                    if command_list[1] in self.modules.keys():
                         self.activeModule = self.modules[command_list[1]]
                         self.prompt = "\n\033[95miotworkbox/modules#>\033[0m "
                         self.context = "modules"
@@ -40,7 +38,7 @@ class Cli(object):
 
                 elif command_list[0] == "list":
                     table = []
-                    for module in self.available_modules:
+                    for module in self.modules.keys():
                         table.append([module])
                     print(tabulate(table, headers=["Modules available"], tablefmt="grid"))
 
@@ -94,7 +92,6 @@ class Cli(object):
         table = [["?", "Display this menu"], ["help", "Display this menu"],
                  ["exit", "exit from the program"], ["options", "Print module's options"],
                  ["list", "list all modules"], ["info", "Print module's info"]]
-        
         print(tabulate(table, headers=["Command", "Description"], tablefmt="grid"))
 
     def main_help(self):
