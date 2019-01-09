@@ -88,7 +88,7 @@ class SSHBruteforce(object):
 
         print(tabulate(table, headers=["Option", "Description", "Value", "Required"], tablefmt="grid"))
 
-    def print_into(self):
+    def print_info(self):
         table = []
         for key, value in self.info.items():
             table.append([key, value])
