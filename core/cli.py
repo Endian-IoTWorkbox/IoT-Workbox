@@ -76,7 +76,7 @@ class Cli(object):
                     self.activeModule.print_options()
 
                 elif command_list[0] == "info":
-                    self.activeModule.print_into()
+                    self.activeModule.print_info()
 
                 elif command_list[0] == "clear":
                     os.system(command_list[0])
