@@ -11,5 +11,6 @@ if __name__ == "__main__":
     try:
         cli.run()
     except KeyboardInterrupt:
+        print()
         sys.exit(0)
 
