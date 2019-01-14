@@ -32,7 +32,7 @@ class ModuleName(object):
     def validate_options(self):
         # Validate the options
 
-        for key, value in self.options:
+        for key, value in self.options.items():
             if value['Required'] and value['Value'] == "":
                 minus("Please fill in all required options")
                 return False
