@@ -45,20 +45,20 @@ class ModuleName(object):
 
         return True
 
-	def print_options(self):
-			table = []
-			for key, value in self.options.items():
+    def print_options(self):
+	table = []
+	for key, value in self.options.items():
 
-				table.append([key, value['Description'], value['Value'], value['Required']])
+		table.append([key, value['Description'], value['Value'], value['Required']])
 
-			print(tabulate(table, headers=["Option", "Description", "Value", "Required"], tablefmt="grid"))
+	print(tabulate(table, headers=["Option", "Description", "Value", "Required"], tablefmt="grid"))
 
-	def print_info(self):
-		table = []
-		for key, value in self.info.items():
-			table.append([key, value])
+    def print_info(self):
+	table = []
+	for key, value in self.info.items():
+		table.append([key, value])
 
-		print(tabulate(table, headers=["Info", "Value"], tablefmt="grid"))
+	print(tabulate(table, headers=["Info", "Value"], tablefmt="grid"))
 
 
     # This is the function where the module does its magic :) so all logic should be here
