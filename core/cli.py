@@ -7,6 +7,9 @@ from tabulate import tabulate
 from modules.portscan import PortScan
 from modules.sshbruteforce import SSHBruteforce
 from modules.ftpbruteforce import FTPBruteforce
+from modules.userenum import UserEnumeration
+from modules.sshdconfig import SSHDConfig
+from modules.linuxrootfiles import LinuxRootFiles
 # Need to import your module in here
 
 
@@ -17,7 +20,7 @@ class Cli(object):
         self.context = context
         
         # Add your module name and main class in this dictionary i.e "sqlinjection": SQLInjection()
-        self.modules = {"portscan": PortScan(), "sshbruteforce": SSHBruteforce(), "ftpbruteforce": FTPBruteforce()}
+        self.modules = {"userenum": UserEnumeration(), "linuxrootfiles": LinuxRootFiles(), "sshdconfig": SSHDConfig(), "portscan": PortScan(), "sshbruteforce": SSHBruteforce(), "ftpbruteforce": FTPBruteforce()}
 
     def run(self):
         while True:
