@@ -18,9 +18,27 @@ class Cli(object):
     def __init__(self, context):
         self.prompt = "\n\033[95miotworkbox#>\033[0m "
         self.context = context
+        self.activeModule = None
         
-        # Add your module name and main class in this dictionary i.e "sqlinjection": SQLInjection()
-        self.modules = {"userenum": UserEnumeration(), "linuxrootfiles": LinuxRootFiles(), "sshdconfig": SSHDConfig(), "portscan": PortScan(), "sshbruteforce": SSHBruteforce(), "ftpbruteforce": FTPBruteforce()}
+        # Add your module name and main class in this dictionary e.g "sqlinjection": SQLInjection()
+        self.modules = {
+                "Web interface": {
+                    "userenum": UserEnumeration()
+                    },
+                "Authentication/Authorization": {
+                    "linuxrootfiles": LinuxRootFiles(), 
+                    "sshdconfig": SSHDConfig(), 
+                    "sshbruteforce": SSHBruteforce(), 
+                    "ftpbruteforce": FTPBruteforce()
+                    },
+                "Network": {
+                    "portscan": PortScan()
+                    },
+                "Privacy": {
+                    },
+                "Transport Encryption": {
+                    }
+                }
 
     def run(self):
         while True:
@@ -29,11 +47,12 @@ class Cli(object):
 
             if self.context == "main":
                 if command_list[0] == "use":
-                    if command_list[1] in self.modules.keys():
-                        self.activeModule = self.modules[command_list[1]]
-                        self.prompt = "\n\033[95miotworkbox/modules#>\033[0m "
-                        self.context = "modules"
-                    else:
+                    for key, value in self.modules.items():
+                        if command_list[1] in value.keys():
+                            self.activeModule = value[command_list[1]]
+                            self.prompt = "\n\033[95miotworkbox/modules#>\033[0m "
+                            self.context = "modules"
+                    if not self.activeModule:
                         minus(command_list[1] + " is not a valid module")
 
                 elif command_list[0] == "help" or command_list[0] == "?":
@@ -41,15 +60,28 @@ class Cli(object):
 
                 elif command_list[0] == "list":
                     table = []
-                    for module in self.modules.keys():
-                        table.append([module])
-                    print(tabulate(table, headers=["Modules available"], tablefmt="grid"))
+                    if len(command_list) == 2:
+                        if command_list[1] == "all":
+                            for key, value in self.modules.items():
+                                for k, v in value.items():
+                                    table.append([k])
+                            print(tabulate(table, headers=["Modules"], tablefmt="grid"))
+                        elif command_list[1] == "categories":
+                            for key, value in self.modules.items():
+                                table.append([key])
+                            print(tabulate(table, headers=["Category"], tablefmt="grid"))
+                        else:
+                            minus("Please select a valid option, either list all or list categories")
+                    else:
+                        minus("Please select a valid option, either list all or list categories")
 
                 elif command_list[0] == "clear":
                     os.system(command_list[0])
-                elif command_list[0] == "exit" or command_lits[0] == "quit":
+
+                elif command_list[0] == "exit" or command_list[0] == "quit":
                     info("Exiting..")
                     sys.exit(0)
+
                 else:
                     info("Please select a valid option")
                 
@@ -94,12 +126,13 @@ class Cli(object):
     def modules_help(self):
         table = [["?", "Display this menu"], ["help", "Display this menu"],
                  ["exit", "exit from the program"], ["options", "Print module's options"],
-                 ["list", "list all modules"], ["info", "Print module's info"]]
+                 ["info", "Print module's info"]]
+
         print(tabulate(table, headers=["Command", "Description"], tablefmt="grid"))
 
     def main_help(self):
         table = [["?", "Display this menu"], ["help", "Display this menu"],
                  ["use", "use a module"], ["exit", "exit from the program"],
-                 ["list", "list all modules"]]
+                 ["list all", "list all modules"], ["list categories", "list modules categories"]]
 
         print(tabulate(table, headers=["Command", "Description"], tablefmt="grid"))
