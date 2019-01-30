@@ -10,6 +10,7 @@ from modules.ftpbruteforce import FTPBruteforce
 from modules.userenum import UserEnumeration
 from modules.sshdconfig import SSHDConfig
 from modules.linuxrootfiles import LinuxRootFiles
+from modules.privacyconcerns import PrivacyConcerns
 # Need to import your module in here
 
 
@@ -35,6 +36,7 @@ class Cli(object):
                     "portscan": PortScan()
                     },
                 "Privacy": {
+                    "privacyconcerns": PrivacyConcerns()
                     },
                 "Transport Encryption": {
                     }
