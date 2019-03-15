@@ -3,14 +3,17 @@
 import ipaddress
 from helpers.colours import plus, minus, warning, info
 from ftplib import FTP
-from tabulate import tabulate
 import os
+from modules.module import Module
 
 
-class FTPBruteforce(object):
+class FTPBruteforce(Module):
 
     def __init__(self, *args, **kwargs):
-        
+
+        super().__init__(*args, **kwargs)
+        self.log_file = args[0]
+
         self.info = {
             'Name': 'FTPBruteforce',
             'Author': 'Alessandro Cara',
@@ -52,7 +55,7 @@ class FTPBruteforce(object):
             minus("The ip address is not a valid one")
             return False
 
-        if self.options['Port']['Value'] < 0 and self.options['Port']['Value'] > 65535:
+        if int(self.options['Port']['Value']) < 0 and int(self.options['Port']['Value']) > 65535:
             minus("The port has to be between 0 and 65535")
             return False
 
@@ -77,38 +80,27 @@ class FTPBruteforce(object):
             client = FTP(self.options['Ip']['Value'], self.options['Port']['Value'])
         except Exception:
             minus("Could not connect to the remote server")
-            return
+            self.log_to_file("Could not connect to the remote server")
+            #return
         
         for word in password_wordlist:
             try:
                 client.login(self.options['Username']['Value'], word)
                 plus("Credentials found %s:%s" %( self.options['Username']['Value'], word))
+                self.log_to_file("Credentials found %s:%s" % (self.options['Username']['Value'], word))
                 return
             except Exception:
                 pass
 
         minus("Could not find any valid credentials")
-    
+        self.log_to_file("Could not find any valid credentials")
+
     def anonymous_login(self):
         try:
             client = FTP(self.options['Ip']['Value'], self.options['Ip']['Port'])
             client.login()
             plus("Anonymous login was successful")
+            self.log_to_file("Anonymous login was successful")
         except Exception:
-            pass
-
-    def print_options(self):
-            table = []
-            for key, value in self.options.items():
-
-                table.append([key, value['Description'], value['Value'], value['Required']])
-
-            print(tabulate(table, headers=["Option", "Description", "Value", "Required"], tablefmt="grid"))
-
-    def print_info(self):
-        table = []
-        for key, value in self.info.items():
-            table.append([key, value])
-
-        print(tabulate(table, headers=["Info", "Value"], tablefmt="grid"))
-    
+            info("Anonymous login was not successful")
+            self.log_to_file("Anonymous login was not successful")
