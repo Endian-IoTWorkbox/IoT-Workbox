@@ -2,6 +2,7 @@
 
 import sys
 import os
+import datetime
 from helpers.colours import plus, minus, warning, info
 from tabulate import tabulate
 from modules.portscan import PortScan
@@ -10,35 +11,38 @@ from modules.ftpbruteforce import FTPBruteforce
 from modules.userenum import UserEnumeration
 from modules.sshdconfig import SSHDConfig
 from modules.linuxrootfiles import LinuxRootFiles
-from modules.privacyconcerns import PrivacyConcerns
+from modules.sqlinjection import SQLInjection
+from modules.xss import XSS
+from modules.privacy import Privacy
 # Need to import your module in here
 
 
 class Cli(object):
     
-    def __init__(self, context):
+    def __init__(self, context, log_file_path):
         self.prompt = "\n\033[95miotworkbox#>\033[0m "
         self.context = context
         self.activeModule = None
+        self.log_file_path = log_file_path
         
         # Add your module name and main class in this dictionary e.g "sqlinjection": SQLInjection()
         self.modules = {
-                "Web interface": {
-                    "userenum": UserEnumeration()
+                "WebInterface": {
+                    "userenum": UserEnumeration(log_file_path),
+                    "sqlinjection": SQLInjection(log_file_path),
+                    "xss": XSS(log_file_path)
                     },
                 "Authentication/Authorization": {
-                    "linuxrootfiles": LinuxRootFiles(), 
-                    "sshdconfig": SSHDConfig(), 
-                    "sshbruteforce": SSHBruteforce(), 
-                    "ftpbruteforce": FTPBruteforce()
+                    "linuxrootfiles": LinuxRootFiles(log_file_path), 
+                    "sshdconfig": SSHDConfig(log_file_path), 
+                    "sshbruteforce": SSHBruteforce(log_file_path), 
+                    "ftpbruteforce": FTPBruteforce(log_file_path)
                     },
                 "Network": {
-                    "portscan": PortScan()
+                    "portscan": PortScan(log_file_path)
                     },
                 "Privacy": {
-                    "privacyconcerns": PrivacyConcerns()
-                    },
-                "Transport Encryption": {
+                    "privacyconcerns": Privacy(log_file_path)
                     }
                 }
 
@@ -72,6 +76,10 @@ class Cli(object):
                             for key, value in self.modules.items():
                                 table.append([key])
                             print(tabulate(table, headers=["Category"], tablefmt="grid"))
+                        elif command_list[1] in self.modules.keys():
+                            for module in self.modules[command_list[1]]:
+                                table.append([module])
+                            print(tabulate(table, headers=[command_list[1]], tablefmt="grid"))
                         else:
                             minus("Please select a valid option, either list all or list categories")
                     else:
@@ -106,9 +114,15 @@ class Cli(object):
                     self.modules_help()
 
                 elif command_list[0] == "run":
-                    if self.activeModule.validate_options():
-                        self.activeModule.run()
-
+                    try:
+                        if self.activeModule.validate_options():
+                            self.log_to_file("Starting " + self.activeModule.__class__.__name__)
+                            self.log_to_file("Options: ")
+                            for key, value in self.activeModule.options.items():
+                                self.log_to_file(str(key) + " --> " + str(value["Value"]))
+                            self.activeModule.run()
+                    except KeyboardInterrupt:
+                        pass
                 elif command_list[0] == "options":
                     self.activeModule.print_options()
 
@@ -127,14 +141,20 @@ class Cli(object):
 
     def modules_help(self):
         table = [["?", "Display this menu"], ["help", "Display this menu"],
-                 ["exit", "exit from the program"], ["options", "Print module's options"],
-                 ["info", "Print module's info"]]
+                 ["exit", "Exit from the program"], ["options", "Print module's options"],
+                 ["info", "Print module's info"], ["set", "Set an option, e.g set FilePath test.txt"],
+                 ["run", "Run the module"]]
 
         print(tabulate(table, headers=["Command", "Description"], tablefmt="grid"))
 
     def main_help(self):
         table = [["?", "Display this menu"], ["help", "Display this menu"],
-                 ["use", "use a module"], ["exit", "exit from the program"],
-                 ["list all", "list all modules"], ["list categories", "list modules categories"]]
+                 ["use", "Use a module"], ["exit", "Exit from the program"],
+                 ["list all", "List all modules"], ["list categories", "List modules categories"],
+                 ["list (category name)", "List all modules for a particular category"]]
 
         print(tabulate(table, headers=["Command", "Description"], tablefmt="grid"))
+
+    def log_to_file(self, content):
+        with open(self.log_file_path, "a+") as log:
+            log.write(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + " " + content + "\n")
