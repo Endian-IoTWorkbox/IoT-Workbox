@@ -2,16 +2,20 @@
 
 # Import what you need 
 from helpers.colours import plus, minus, warning, info
-from tabulate import tabulate
+from modules.module import Module
 # To print information use either plus, minus, warning or info accordingly
 # To test the module this should be added into the file in /core/cli.py
 # Instruction to do that will be inside that file
 # To run the program you need to run the file workbox.py
 
-class ModuleName(object):
+
+
+class ModuleName(Module):
 
     def __init__(self, *args, **kwargs):
-        
+        super().__init__(*args, **kwargs)
+	self.log_file = args[0]
+
         self.info = {
             'Name': 'Name of the module',
             'Author': 'Your name',
@@ -45,22 +49,6 @@ class ModuleName(object):
 
         return True
 
-    def print_options(self):
-	table = []
-	for key, value in self.options.items():
-
-		table.append([key, value['Description'], value['Value'], value['Required']])
-
-	print(tabulate(table, headers=["Option", "Description", "Value", "Required"], tablefmt="grid"))
-
-    def print_info(self):
-	table = []
-	for key, value in self.info.items():
-		table.append([key, value])
-
-	print(tabulate(table, headers=["Info", "Value"], tablefmt="grid"))
-
-
     # This is the function where the module does its magic :) so all logic should be here
     def run(self):
         # if the options do not validate do not run the module
@@ -69,5 +57,3 @@ class ModuleName(object):
         # Logic of the module 
 
     # You are allowed to use as many methods as you want to make your module work, this should be called inside the run method
-
-        
